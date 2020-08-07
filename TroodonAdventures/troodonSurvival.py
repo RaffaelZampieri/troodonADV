@@ -1,4 +1,4 @@
-import pygame, time, sys, random
+import pygame, time, sys, random, os
 from pygame.locals import *
 
 pygame.init()
@@ -13,29 +13,39 @@ red = (255, 0, 0)
 green = (0, 255, 0)
 grey = (155, 155, 155)
 
-myfont = pygame.font.SysFont(None, 50)
-
-pontos = 0
+font = pygame.font.SysFont(None,30)
 
 Display = pygame.display.set_mode((widht,height))
 pygame.display.set_caption('Troodon Survival')
+icon = pygame.image.load('ic1.png')
+pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
+DisplayPontos = (height/10, widht/5)
 
 dinoImg = pygame.image.load('troodon.png')
+dinoWidth = 70
 meteoroIMG = pygame.image.load('meteoro.png')
 
 def meteoros(meteoro_X,Meteoro_Y,meteoroW, meteoroX):
     Display.blit(meteoroIMG,( meteoro_X, Meteoro_Y))
-    #pygame.draw.rect(Display, color, [meteoro_X,Meteoro_Y,meteoroW,meteoroX])
-
-dinoWidth = 70
-beefWidth = 70
+    #pygame.draw.rect(Display, color, [meteoro_X,Meteoro_Y,meteoroW,meteoroX]
 
 def dino(x, y):
     Display.blit(dinoImg,(x, y))
 
+def morreu():
+    textMorreu = font.render('Extinto' 
+    'Fez Pontos : ' + str(pontos), True, (white))
+    Display.blit(textMorreu, (DisplayPontos))
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        
+
 def main():
 
+    pontos = 0
     quitar = False
     x = (widht * 0.45)
     y = (height * 0.8)
@@ -44,7 +54,7 @@ def main():
     
     meteoro_X = random.randrange(0,widht)
     Meteoro_Y = -600
-    meteorospeed = 7 
+    meteorospeed = 7
     Meteoro_largura = 70
     Meteoro_altura = 70
     meteoroIMG = pygame.image.load('meteoro.png')
@@ -64,47 +74,32 @@ def main():
                 x_change = 0
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
-                sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
-                main()
-
+                sys.exit()               
 
         x += x_change
 
         Display.fill(grey)
+        textPontos = font.render('Pontos : ' + str(pontos), True, (white))
+        Display.blit(textPontos, (DisplayPontos))
         dino(x, y)
 
         meteoros(meteoro_X, Meteoro_Y, Meteoro_largura, Meteoro_altura)
         Meteoro_Y += meteorospeed
         dino(x,y)
-        Sobrevividos = 0 
-        meteorosC = 1
 
-        def meteorosSobrevividos(contagem):
-            pontosTXT = myfont.render('Sobrevividos {0}'.format(pontos))
-            textrect = pontosTXT.get_rect()
-            textrect.x = Display.get_rect().x
-            textrect.y = Display.get_rect().y
-            pontos.blit(pontosTXT, (5,10))
+        if Meteoro_Y > height:
+            Meteoro_Y = 0 - Meteoro_altura
+            meteoro_X = random.randrange(0,widht)
             pontos += 1
-
-        if Meteoro_Y > height:
-            Meteoro_Y = 0 - Meteoro_altura
-            meteoro_X = random.randrange(0,widht)
-            Sobrevividos += 1
             meteorospeed += 1
-            Meteoro_largura += (Sobrevividos * 1.2)
-
-        if Meteoro_Y > height:
-            Meteoro_Y = 0 - Meteoro_altura
-            meteoro_X = random.randrange(0,widht)
 
         if y < Meteoro_Y + Meteoro_altura:
             if x > meteoro_X and x < meteoro_X + Meteoro_largura or x + dinoWidth > meteoro_X and x + dinoWidth < meteoro_X + Meteoro_largura:
+                morreu = True
                 quitar = True
 
         if x > widht - dinoWidth or x < 0:
+            morreu = True
             quitar = True
 
         pygame.display.flip()
